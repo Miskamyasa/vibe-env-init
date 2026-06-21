@@ -1,0 +1,34 @@
+{
+  "name": "{{PROJECT_NAME}}-${localWorkspaceFolderBasename}",
+  "image": "miskamyasa/mise-ub-24-04",
+  "remoteUser": "ubuntu",
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+  "containerEnv": {
+    "MISE_TRUSTED_CONFIG_PATHS": "${localWorkspaceFolder}",
+    "NEURALWATT_API_KEY": "${localEnv:NEURALWATT_API_KEY}",
+    "OPENCODE_DISABLE_CLAUDE_CODE": true,
+    "OPENCODE_DISABLE_LSP_DOWNLOAD": true,
+    "OPENCODE_YOLO": true
+  },
+  "initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/containers/local-share-opencode/{{PROJECT_NAME}}/${localWorkspaceFolderBasename}",
+  "mounts": [
+    // Cache mounts
+    "source=${localEnv:HOME}/.cache/containers/cache,target=/home/ubuntu/.cache,type=bind",
+    "source=${localEnv:HOME}/.cache/containers/local-share,target=/home/ubuntu/.local/share,type=bind",
+    // pnpm mounts
+    "source=${localEnv:HOME}/.local/share/pnpm,target=${localEnv:HOME}/.local/share/pnpm,type=bind",
+    // Opencode mounts
+    "source=${localEnv:HOME}/.cache/containers/local-share-opencode/{{PROJECT_NAME}}/${localWorkspaceFolderBasename},target=/home/ubuntu/.local/share/opencode,type=bind",
+    "source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/ubuntu/.local/share/opencode/auth.json,type=bind",
+    "source=${localEnv:HOME}/.config/opencode,target=/home/ubuntu/.config/opencode,type=bind,readonly",
+    // main branch mounts
+    "source=${localWorkspaceFolder}/../main,target=${localWorkspaceFolder}/../main,type=bind,readonly",
+    // mise global config mount
+    "source=${localWorkspaceFolder}/mise.toml,target=/home/ubuntu/.config/mise/config.toml,type=bind"
+  ],
+  "runArgs": [
+    "--name={{PROJECT_NAME}}-${localWorkspaceFolderBasename}"
+  ],
+  "postCreateCommand": "mise self-update -y && mise install"
+}

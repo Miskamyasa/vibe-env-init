@@ -1,11 +1,11 @@
 ---
-agent: build
+agent: lead
 description: Use this command to execute the implementation plan created in the previous phase.
 ---
 
-# PHASE 2: EXECUTION
+# EXECUTION
 
-## Input
+## Additional Input
 
 $ARGUMENTS
 
@@ -14,71 +14,71 @@ $ARGUMENTS
 Execute the implementation steps via sub-agents.
 
 For each step in the plan:
-1. Generate a self-contained implementation-only prompt for the step, including all necessary context and references for implementation;
-2. Run the implementation sub-agent with the generated prompt;
-3. Halt/skip/remediate correctly on failures (per rules below);
-4. Aggregate results with full traceability to the original plan;
+1. Generate a self-contained implementation-only prompt for the step, including all necessary context and references for implementation.
+2. Run the implementation sub-agent with the generated prompt.
+3. Halt/skip/remediate correctly on failures (per rules below).
+4. Aggregate results with full traceability to the original plan.
 
 ## Global Execution Rules
 
-- You MUST execute in dependency order; a step runs only if all dependencies succeeded;
-- Each sub-agent objective MUST be implementation-only (no research, no planning);
-- Sub-agents MAY read additional repository files as needed to implement, BUT they MUST implement ONLY what their prompt objective requests;
-- If a step is `failed` or `blocked` for reasons resolvable by repository changes, do NOT execute downstream dependents. Add intermediate remediation steps (e.g., `S1.1`, `S1.2`) and resume from the original failed/blocked step after remediation succeeds;
-- If you've noticed sub-agent drifting from the original step objective, insert a remediation step to fix the drift before resuming;
-- Each inserted remediation step MUST declare: (a) parent step ID, (b) blocker being resolved, (c) minimal scope strictly limited to unblocking the parent step;
-- Inserted remediation steps MUST NOT introduce unrelated feature work or refactors;
-- Aggregate outputs after all runnable steps complete;
+- Prefer parallel execution of independent steps, but do NOT execute any step before all its dependencies have succeeded.
+- Sub-agents MAY read additional repository files as needed to implement, BUT they MUST implement ONLY what their prompt objective requests.
+- If a step is `failed` or `blocked` for reasons resolvable by repository changes, do NOT execute downstream dependents. Add intermediate remediation steps (e.g., `S1.1`, `S1.2`) and resume from the original failed/blocked step after remediation succeeds.
+- Each inserted remediation step MUST declare: (a) parent step ID, (b) blocker being resolved, (c) minimal scope strictly limited to unblocking the parent step.
+- Inserted remediation steps MUST NOT introduce unrelated feature work or refactors.
+- Aggregate outputs after all runnable steps complete.
+- Do not report list of files changed.
+
+---
 
 ## Sub-Agent Prompt Template
 
 ### Inputs for This Prompt
 
-- Step ID: ${STEP_ID};
-- Step Title: ${TITLE};
-- Scope: ${SCOPE};
-
-### Context
-
-- You MUST read all `AGENTS.md` files — project conventions and coding standards;
-- You MUST read all references explicitly provided: ${STEP_REFERENCES};
+- Step Title: ${TITLE}.
+- Step Intent: ${INTENT}.
 
 ### Objective
 
 Implement exactly this step: ${TITLE}
 
-#### Intent
+### Context
 
-${INTENT}
+- You MUST read all references explicitly provided: ${STEP_REFERENCES}.
 
-#### Affected Area
+### In Scope
 
-${AFFECTED_AREA}
+${IN_SCOPE}
+
+### Out of Scope
+
+${OUT_OF_SCOPE}
 
 #### Acceptance Criteria
 
 ${ACCEPTANCE_CRITERIA}
 
-#### Source Trace
+#### Implementation Notes
 
-${SOURCE_TRACE}
+${IMPLEMENTATION_NOTES}
 
 ### Non-Negotiable Rules
 
-- Implementation ONLY: do NOT do research, do NOT do planning, do NOT propose alternative designs;
-- Do NOT modify anything outside the stated scope;
-- Do NOT introduce new abstractions unless explicitly required by the scope and justified;
-- Do NOT redesign systems;
-- Satisfy ALL acceptance criteria; if any item cannot be met, set `Status: failed` with explanation (no partial success labeling);
+- Change only what the scope requires.
+- Follow existing codebase conventions, including `AGENTS.md`.
+- Do not test implementation details or edge cases that are not explicitly required by the acceptance criteria.
+- If any required context/reference is missing or inaccessible, REPORT "Missing Context" and HALT (no implementation).
+- Meet all acceptance criteria. If any cannot be met, return `Status: failed` with the reason.
+- Do not report list of files changed.
 
 ### Execution Context
 
 #### Step Identity
 
-- Step ID: ${STEP_ID};
-- Depends On: ${DEPENDENCIES};
-- Steps Index: ${STEPS_INDEX};
-- Execution Order: ${STEPS_INDEX};
+- Step ID: ${STEP_ID}.
+- Depends On: ${DEPENDENCIES}.
+- Steps Index: ${STEPS_INDEX}.
+- Execution Order: ${STEPS_INDEX}.
 
 #### Dependency Context
 
@@ -89,18 +89,16 @@ ${UPSTREAM_ID_TITLE_LIST}
 
 ### Output Format
 
+```markdown
 Status: `success` \| `failed` \| `blocked`
-Result: What was done (concise, verifiable)
-Files Modified: [explicit list or empty]
+Result: What was done (concise, verifiable).
 
 Missing Context:
 - *List missing items here*
 
-Source Trace:
-- *Cite which provided references justify the changes*
-
 Open Issues:
 - *Unresolved problems or follow-ups*
+```
 
 ---
 

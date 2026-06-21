@@ -1,38 +1,58 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "agent": {
+    "lead": {
+      "model": "anthropic/claude-opus-4-8",
+      "temperature": 0,
+      "reasoningEffort": "medium"
+    },
     "build": {
-      "model": "openai/gpt-5.3-codex"
+      "model": "openai/gpt-5.5",
+      "temperature": 0,
+      "reasoningEffort": "medium"
     },
     "explore": {
-      "model": "google/gemini-3-flash-preview"
+      "model": "openai/gpt-5.4-mini",
+      "temperature": 0,
+      "reasoningEffort": "low"
     },
     "general": {
-      "model": "openai/gpt-5.3-codex"
+      "model": "openai/gpt-5.5",
+      "temperature": 0,
+      "reasoningEffort": "medium"
     },
     "investigate": {
-      "model": "openai/gpt-5.3-codex"
+      "model": "openai/gpt-5.4",
+      "temperature": 0,
+      "reasoningEffort": "medium"
     },
     "plan": {
-      "model": "anthropic/claude-opus-4-5"
+      "model": "anthropic/claude-opus-4-8",
+      "temperature": 0,
+      "reasoningEffort": "medium"
     },
     "review": {
-      "model": "openai/gpt-5.2"
+      "model": "openai/gpt-5.5",
+      "temperature": 0,
+      "reasoningEffort": "high"
     }
   },
   "autoupdate": false,
   "default_agent": "investigate",
   "formatter": false,
   "lsp": false,
-  "mcp": {},
-  "plugin": [],
-  "provider": {},
-  "small_model": "anthropic/claude-haiku-4-5",
-  "snapshot": false,
-  "theme": "system",
-  "tui": {
-    "diff_style": "stacked"
+  "provider": {
+    "neuralwatt": {
+      "name": "Neuralwatt",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.neuralwatt.com/v1",
+        "apiKey": "{env:NEURALWATT_API_KEY}"
+      }
+    }
   },
+  "small_model": "openai/gpt-5.4-mini",
+  "snapshot": false,
   "watcher": {
     "ignore": [
       "node_modules/**",

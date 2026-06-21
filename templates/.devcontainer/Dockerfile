@@ -3,6 +3,7 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     make \
     gnupg \
     git \
@@ -24,6 +25,8 @@ ENV XDG_DATA_HOME=$HOME/.local/share
 ENV XDG_STATE_HOME=$HOME/.local/state
 
 ENV PATH=$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
 
 USER ubuntu
 WORKDIR /home/ubuntu
