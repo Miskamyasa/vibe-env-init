@@ -5,6 +5,7 @@ set -euo pipefail
 REPO="${VIBE_ENV_INIT_REPO:-Miskamyasa/vibe-env-init}"
 BRANCH="${VIBE_ENV_INIT_BRANCH:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/templates"
+ARCHIVE_URL="https://github.com/${REPO}/archive/${BRANCH}.tar.gz"
 
 # ── Colors ──────────────────────────────────────────────────────────
 R='\033[0;31m' G='\033[0;32m' Y='\033[1;33m' B='\033[0;34m' C='\033[0;36m' DIM='\033[2m' NC='\033[0m'
@@ -55,6 +56,30 @@ fetch() {
   fi
 }
 
+fetch_template_tree() {
+  TMPDIR_INIT="${TMPDIR_INIT:-$(create_tmpdir)}"
+
+  local archive="${TMPDIR_INIT}/repo.tar.gz"
+  local extract_dir="${TMPDIR_INIT}/repo"
+
+  mkdir -p "$extract_dir"
+  fetch "$ARCHIVE_URL" "$archive" || exit 1
+
+  if ! command -v tar &>/dev/null; then
+    err "tar not found"
+    exit 1
+  fi
+
+  tar -xzf "$archive" -C "$extract_dir" --strip-components=1 || exit 1
+
+  if [[ ! -d "${extract_dir}/templates" ]]; then
+    err "Template directory not found in ${ARCHIVE_URL}"
+    exit 1
+  fi
+
+  printf '%s' "${extract_dir}/templates"
+}
+
 prompt_mode() {
   echo ""
   printf "${C}Select opencode session mode:${NC}\n"
@@ -102,7 +127,7 @@ supports_diff_color() {
 }
 
 show_conflict() {
-  local rel_path="$1" dest="$2" remote_url="$3"
+  local rel_path="$1" dest="$2" template_file="$3" template_label="$4"
   local escaped_project_name
   escaped_project_name="$(escape_sed_replacement "$PROJECT_NAME")"
 
@@ -110,44 +135,43 @@ show_conflict() {
   local tmp_file
   tmp_file="${TMPDIR_INIT}/$(basename "$rel_path")"
 
-  if fetch "$remote_url" "$tmp_file" 2>/dev/null; then
-    # Apply template substitution to temp file for accurate diff
-    if command -v sed &>/dev/null; then
-      sed -i.bak "s|{{PROJECT_NAME}}|${escaped_project_name}|g" "$tmp_file" && rm -f "${tmp_file}.bak"
-    fi
+  cp "$template_file" "$tmp_file"
 
-    if command -v diff &>/dev/null; then
-      printf "\n${DIM}--- existing: %s${NC}\n" "$rel_path"
-      printf "${DIM}+++ template: %s${NC}\n\n" "$remote_url"
-      if supports_diff_color; then
-        diff --color=auto -u "$dest" "$tmp_file" || true
-      else
-        diff -u "$dest" "$tmp_file" || true
-      fi
-      echo ""
-    fi
+  # Apply template substitution to temp file for accurate diff
+  if command -v sed &>/dev/null; then
+    sed -i.bak "s|{{PROJECT_NAME}}|${escaped_project_name}|g" "$tmp_file" && rm -f "${tmp_file}.bak"
   fi
 
-  printf "  ${DIM}Template: %s${NC}\n" "$remote_url"
+  if command -v diff &>/dev/null; then
+    printf "\n${DIM}--- existing: %s${NC}\n" "$rel_path"
+    printf "${DIM}+++ template: %s${NC}\n\n" "$template_label"
+    if supports_diff_color; then
+      diff --color=auto -u "$dest" "$tmp_file" || true
+    else
+      diff -u "$dest" "$tmp_file" || true
+    fi
+    echo ""
+  fi
+
+  printf "  ${DIM}Template: %s${NC}\n" "$template_label"
   info "Merge changes from the template manually if needed."
 }
 
-place_file() {
-  local rel_path="$1" remote_name="${2:-$1}"
+place_template_file() {
+  local rel_path="$1" template_file="$2" template_label="$3"
   local dest="./${rel_path}"
   local dir
   dir=$(dirname "$dest")
-  local remote_url="${BASE_URL}/${remote_name}"
 
   mkdir -p "$dir"
 
   if [[ -f "$dest" ]]; then
     warn "Exists, skipping: ${rel_path}"
-    show_conflict "$rel_path" "$dest" "$remote_url"
+    show_conflict "$rel_path" "$dest" "$template_file" "$template_label"
     return
   fi
 
-  fetch "$remote_url" "$dest"
+  cp "$template_file" "$dest"
   ok "Created ${rel_path}"
 }
 
@@ -162,16 +186,43 @@ apply_template() {
   fi
 }
 
-# ── File manifest ───────────────────────────────────────────────────
+destination_for_template() {
+  local rel_path="$1"
 
-OPENCODE_FILES=(
-  ".opencode/opencode.json"
-  ".opencode/agents/investigate.md"
-  ".opencode/agents/review.md"
-  ".opencode/commands/execute.md"
-  ".opencode/commands/plan.md"
-  ".opencode/commands/review.md"
-)
+  case "$rel_path" in
+    mise.*.toml)
+      if [[ "$rel_path" == "mise.${MODE}.toml" ]]; then
+        printf '%s' "mise.toml"
+      fi
+      ;;
+    .devcontainer/devcontainer.*.json)
+      if [[ "$rel_path" == ".devcontainer/devcontainer.${MODE}.json" ]]; then
+        printf '%s' ".devcontainer/devcontainer.json"
+      fi
+      ;;
+    *)
+      printf '%s' "$rel_path"
+      ;;
+  esac
+}
+
+copy_templates() {
+  local templates_dir="$1"
+
+  while IFS= read -r template_file; do
+    local rel_path dest_path template_label
+    rel_path="${template_file#"${templates_dir}/"}"
+    dest_path="$(destination_for_template "$rel_path")"
+
+    if [[ -z "$dest_path" ]]; then
+      continue
+    fi
+
+    template_label="${BASE_URL}/${rel_path}"
+    place_template_file "$dest_path" "$template_file" "$template_label"
+    apply_template "$dest_path"
+  done < <(find "$templates_dir" -type f | sort)
+}
 
 # ── Main ────────────────────────────────────────────────────────────
 
@@ -186,21 +237,10 @@ info "Target dir:   $(pwd)"
 # Prompt for mode
 prompt_mode
 
-# .devcontainer - pick variant based on mode
-place_file ".devcontainer/devcontainer.json" ".devcontainer/devcontainer.${MODE}.json"
-
-# mise.toml - pick variant based on mode
-place_file "mise.toml" "mise.${MODE}.toml"
-
-# .opencode - all files
-for f in "${OPENCODE_FILES[@]}"; do
-  place_file "$f"
-done
-
-# Template substitution - replace {{PROJECT_NAME}} in placed files
-apply_template ".devcontainer/devcontainer.json"
-apply_template "mise.toml"
-apply_template ".opencode/opencode.json"
+# Download and copy every template file. Mode-specific templates are mapped to
+# their final filenames, so new agents/commands/config files need no script edit.
+TEMPLATES_DIR="$(fetch_template_tree)"
+copy_templates "$TEMPLATES_DIR"
 
 echo ""
 ok "Done! Your dev environment is ready."
