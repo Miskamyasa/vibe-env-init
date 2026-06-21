@@ -1,6 +1,6 @@
 ---
 agent: lead
-description: Use this command to execute the implementation plan created in the previous phase.
+description: Use this command to coordinate implementation through the lead agent.
 ---
 
 # EXECUTION
@@ -28,8 +28,6 @@ For each step in the plan:
 - Inserted remediation steps MUST NOT introduce unrelated feature work or refactors.
 - Aggregate outputs after all runnable steps complete.
 - Do not report list of files changed.
-
----
 
 ## Sub-Agent Prompt Template
 

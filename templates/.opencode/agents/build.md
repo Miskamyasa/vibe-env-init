@@ -17,8 +17,6 @@ Default behavior:
 - Verify it with the cheapest meaningful check.
 - Report what changed, what passed, and what remains uncertain.
 
-Do not stop at a plan unless the user explicitly asks for a plan only.
-
 </system_reminder>
 
 <build_guidelines>
