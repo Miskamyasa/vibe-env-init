@@ -1,0 +1,56 @@
+<user-input>
+  $ARGUMENTS
+</user-input>
+<objective>
+  Execute the implementation steps via agents.
+  For each step in the plan:
+  1. Generate a self-contained implementation-only prompt for the step, including
+      all necessary context and references for implementation.
+  2. Run the `general` agent with the generated prompt.
+  3. Halt/skip/remediate correctly on failures (per rules below).
+  4. Aggregate results with full traceability to the original plan.
+</objective>
+<global-execution-rules>
+  - Do NOT execute any step before all its dependencies have succeeded.
+  - After each step, call `explore` agent to ensure the step succeeded.
+  - If a step status is `failed` or `blocked` for reasons resolvable by repository changes,
+    do NOT execute downstream dependents. Add intermediate remediation steps (e.g., `S1.1`, `S1.2`)
+    and resume from the original failed/blocked step after remediation succeeds.
+  - Each inserted remediation step MUST declare: (a) parent step ID, (b) blocker being resolved,
+    (c) minimal scope strictly limited to unblocking the parent step.
+  - Inserted remediation steps MUST NOT introduce unrelated feature work or refactors.
+</global-execution-rules>
+<sub-agent-prompt-template>
+  <step-identity>
+    - Step ID: ${STEP_ID}.
+    - Step Intent: ${INTENT}.
+    - Step Title: ${TITLE}.
+    - Depends On: ${DEPENDENCIES}.
+    - Steps Index: ${STEPS_INDEX}.
+    - Execution Order: ${STEPS_INDEX}.
+  </step-identity>
+  <context>
+    - *list upstream IDs/titles only, no duplication*
+    - *problem statement from the planning phase and reasoning*
+    You MUST read all references explicitly provided:
+    - *explicit list*.
+    Relevant completed upstream steps:
+    - *list of completed steps*.
+  </context>
+  <objective>
+    *Provide a detailed implementation description and clearly state the expected outcome*
+  </objective>
+  <scope>
+    *explicit bullets*
+  </scope>
+  <acceptance-criteria>
+    *explicit bullets*
+  </acceptance-criteria>
+  <implementation-rules>
+    - Change only what the scope requires.
+    - Prefer acceptance-criteria checks first. Add risk-based checks only when behavior, security,
+      data loss, integration, or regression risk justifies it.
+    - Meet all acceptance criteria. If any cannot be met, return `Status: failed` with the reason.
+    - Report `Files Modified` concisely: list only files materially changed by the step.
+  </implementation-rules>
+</sub-agent-prompt-template>

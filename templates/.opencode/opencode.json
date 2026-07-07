@@ -1,40 +1,64 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "agent": {
-    "lead": {
-      "model": "anthropic/claude-opus-4-8",
-      "temperature": 0,
-      "reasoningEffort": "medium"
+  "command": {
+    "execute": {
+      "description": "Execute the given plan",
+      "template": "{file:./commands/execute.html}",
+      "agent": "lead"
     },
+    "review": {
+      "description": "Review the given plan",
+      "template": "{file:./commands/review.html}",
+      "agent": "lead"
+    }
+  },
+  "agent": {
     "build": {
-      "model": "openai/gpt-5.5",
-      "temperature": 0,
-      "reasoningEffort": "medium"
+      "mode": "primary",
+      "description": "Primary coding mode for implementing software changes end-to-end",
+      "prompt": "{file:./agents/build.html}",
+      "temperature": 0
     },
     "explore": {
-      "model": "openai/gpt-5.4-mini",
+      "mode": "subagent",
+      "description": "Use this agent when you need scoped read-only research with evidence-backed findings",
+      "prompt": "{file:./agents/explore.html}",
+      "temperature": 0,
+      "model": "opencode-go/deepseek-v4-flash"
+    },
+    "general": {
+      "mode": "subagent",
+      "description": "Use this agent when you need to implement coding tasks with minimal, correct changes",
+      "prompt": "{file:./agents/general.html}",
+      "temperature": 0,
+      "reasoningEffort": "low",
+      "model": "openai/gpt-5.4"
+    },
+    "investigate": {
+      "mode": "primary",
+      "description": "Use this agent when you need to investigate the codebase, gather evidence, and report findings in a structured format.",
+      "prompt": "{file:./agents/investigate.html}",
       "temperature": 0,
       "reasoningEffort": "low"
     },
-    "general": {
-      "model": "openai/gpt-5.5",
-      "temperature": 0,
-      "reasoningEffort": "medium"
-    },
-    "investigate": {
-      "model": "openai/gpt-5.4",
-      "temperature": 0,
-      "reasoningEffort": "medium"
+    "lead": {
+      "mode": "primary",
+      "description": "Use this agent when you need to coordinate implementation work",
+      "prompt": "{file:./agents/lead.html}",
+      "temperature": 0
     },
     "plan": {
-      "model": "anthropic/claude-opus-4-8",
-      "temperature": 0,
-      "reasoningEffort": "medium"
+      "mode": "primary",
+      "description": "Use this agent when you need an execution-ready implementation plan before coding",
+      "prompt": "{file:./agents/plan.html}",
+      "temperature": 0
     },
     "review": {
-      "model": "openai/gpt-5.5",
+      "mode": "subagent",
+      "description": "Use this agent when you need to make a code review of the implementation",
+      "prompt": "{file:./agents/review.html}",
       "temperature": 0,
-      "reasoningEffort": "high"
+      "model": "openai/gpt-5.5"
     }
   },
   "autoupdate": false,
@@ -51,7 +75,7 @@
       }
     }
   },
-  "small_model": "openai/gpt-5.4-mini",
+  "small_model": "opencode-go/deepseek-v4-flash",
   "snapshot": false,
   "watcher": {
     "ignore": [

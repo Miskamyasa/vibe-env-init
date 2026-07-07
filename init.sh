@@ -80,31 +80,6 @@ fetch_template_tree() {
   printf '%s' "${extract_dir}/templates"
 }
 
-prompt_mode() {
-  echo ""
-  printf "${C}Select opencode session mode:${NC}\n"
-  echo ""
-  printf "  ${B}1)${NC} shared  - Share opencode sessions between containers\n"
-  printf "             Uses opencode v1.1.63 (pre-SQLite, session sharing compatible)\n"
-  echo ""
-  printf "  ${B}2)${NC} sqlite  - Isolated opencode data per project\n"
-  printf "             Uses latest opencode (SQLite-based, no cross-container sessions)\n"
-  echo ""
-
-  while true; do
-    printf "${C}Choose [1/2]:${NC} "
-    read -r choice
-    case "$choice" in
-      1|shared)  MODE="shared"; break ;;
-      2|sqlite)  MODE="sqlite"; break ;;
-      *)         warn "Please enter 1 or 2" ;;
-    esac
-  done
-
-  ok "Mode: ${MODE}"
-  echo ""
-}
-
 escape_sed_replacement() {
   local value="$1"
   value="${value//\\/\\\\}"
@@ -186,41 +161,15 @@ apply_template() {
   fi
 }
 
-destination_for_template() {
-  local rel_path="$1"
-
-  case "$rel_path" in
-    mise.*.toml)
-      if [[ "$rel_path" == "mise.${MODE}.toml" ]]; then
-        printf '%s' "mise.toml"
-      fi
-      ;;
-    .devcontainer/devcontainer.*.json)
-      if [[ "$rel_path" == ".devcontainer/devcontainer.${MODE}.json" ]]; then
-        printf '%s' ".devcontainer/devcontainer.json"
-      fi
-      ;;
-    *)
-      printf '%s' "$rel_path"
-      ;;
-  esac
-}
-
 copy_templates() {
   local templates_dir="$1"
 
   while IFS= read -r template_file; do
-    local rel_path dest_path template_label
+    local rel_path template_label
     rel_path="${template_file#"${templates_dir}/"}"
-    dest_path="$(destination_for_template "$rel_path")"
-
-    if [[ -z "$dest_path" ]]; then
-      continue
-    fi
-
     template_label="${BASE_URL}/${rel_path}"
-    place_template_file "$dest_path" "$template_file" "$template_label"
-    apply_template "$dest_path"
+    place_template_file "$rel_path" "$template_file" "$template_label"
+    apply_template "$rel_path"
   done < <(find "$templates_dir" -type f | sort)
 }
 
@@ -234,11 +183,7 @@ echo ""
 info "Project name: ${PROJECT_NAME}"
 info "Target dir:   $(pwd)"
 
-# Prompt for mode
-prompt_mode
-
-# Download and copy every template file. Mode-specific templates are mapped to
-# their final filenames, so new agents/commands/config files need no script edit.
+# Download and copy every template file.
 TEMPLATES_DIR="$(fetch_template_tree)"
 copy_templates "$TEMPLATES_DIR"
 

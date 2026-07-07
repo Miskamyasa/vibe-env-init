@@ -1,9 +1,0 @@
-[tools]
-node = "24.14.0"
-# Npm tools
-npm = "latest"
-"npm:@devcontainers/cli" = "latest"
-# OpenCode. This is the last version which doesn't use SQLite and can share sessions between containers
-"aqua:opencode" = "1.1.63"
-# GitHub CLI
-"aqua:cli/cli" = "latest"

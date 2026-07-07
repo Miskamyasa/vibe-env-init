@@ -7,9 +7,8 @@
   "containerEnv": {
     "MISE_TRUSTED_CONFIG_PATHS": "${localWorkspaceFolder}",
     "NEURALWATT_API_KEY": "${localEnv:NEURALWATT_API_KEY}",
-    "OPENCODE_DISABLE_CLAUDE_CODE": true,
     "OPENCODE_DISABLE_LSP_DOWNLOAD": true,
-    "OPENCODE_YOLO": true
+    "OPENCODE_DISABLE_CLAUDE_CODE": true
   },
   "initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/containers/local-share-opencode/{{PROJECT_NAME}}/${localWorkspaceFolderBasename}",
   "mounts": [
@@ -23,9 +22,7 @@
     "source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/ubuntu/.local/share/opencode/auth.json,type=bind",
     "source=${localEnv:HOME}/.config/opencode,target=/home/ubuntu/.config/opencode,type=bind,readonly",
     // main branch mounts
-    "source=${localWorkspaceFolder}/../main,target=${localWorkspaceFolder}/../main,type=bind,readonly",
-    // mise global config mount
-    "source=${localWorkspaceFolder}/mise.toml,target=/home/ubuntu/.config/mise/config.toml,type=bind"
+    "source=${localWorkspaceFolder}/../main,target=${localWorkspaceFolder}/../main,type=bind,readonly"
   ],
   "runArgs": [
     "--name={{PROJECT_NAME}}-${localWorkspaceFolderBasename}"
