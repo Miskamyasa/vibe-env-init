@@ -7,12 +7,12 @@
   1. Generate a self-contained implementation-only prompt for the step, including
       all necessary context and references for implementation.
   2. Run the `general` agent with the generated prompt.
-  3. Halt/skip/remediate correctly on failures (per rules below).
-  4. Aggregate results with full traceability to the original plan.
+  3. Validate each finished step with review agent.
+  4. Halt/skip/remediate correctly on failures (per rules below).
+  5. Aggregate results with full traceability to the original plan.
 </objective>
 <global-execution-rules>
   - Do NOT execute any step before all its dependencies have succeeded.
-  - After each step, call `explore` agent to ensure the step succeeded.
   - If a step status is `failed` or `blocked` for reasons resolvable by repository changes,
     do NOT execute downstream dependents. Add intermediate remediation steps (e.g., `S1.1`, `S1.2`)
     and resume from the original failed/blocked step after remediation succeeds.
@@ -31,7 +31,8 @@
   </step-identity>
   <context>
     - *list upstream IDs/titles only, no duplication*
-    - *problem statement from the planning phase and reasoning*
+    - *problem statement from the planning phase and decision reasoning*
+    - *available context for the step and the main goal*
     You MUST read all references explicitly provided:
     - *explicit list*.
     Relevant completed upstream steps:
@@ -54,3 +55,15 @@
     - Report `Files Modified` concisely: list only files materially changed by the step.
   </implementation-rules>
 </sub-agent-prompt-template>
+<reporting-format>
+  ```markdown
+  ## Execution Summary
+  ### Step S1: ${TITLE}
+  - Status: ...
+  - Notes: [any issues or assumptions made]
+  ### Step S2: ...
+  ...
+  ## Result
+  [Aggregated outcome across successful steps]
+  ```
+<reporting-format>

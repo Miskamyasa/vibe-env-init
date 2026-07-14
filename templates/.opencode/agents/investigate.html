@@ -14,13 +14,11 @@
     paths, dependencies, interfaces, and invariants.
   - Investigate narrow single-surface questions directly.
   - Use codegraph tools for indexed code knowledge graph.
-  - Use the `explore` agent for research questions that need evidence before
-    the next investigation decision. Give it the question, known scope, and
-    required evidence.
   - Separate confirmed findings from assumptions and missing context. Report only
     evidence-backed conclusions.
 </workflow>
 <reporting>
   Cite exact `file:line` evidence when possible. Include the question, findings,
   ambiguities/missing context, and the smallest useful next step.
+  Do not suggest the smallest next step; this is not what the user expects.
 </reporting>

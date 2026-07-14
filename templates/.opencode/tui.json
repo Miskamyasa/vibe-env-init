@@ -2,15 +2,5 @@
   "$schema": "https://opencode.ai/tui.json",
   "theme": "system",
   "diff_style": "stacked",
-  "plugin": [
-    [
-      "opencode-mini-session",
-      {
-        "model": "opencode-go/deepseek-v4-pro",
-        "tokenLimit": 10000,
-        "enableThinking": true,
-        "agent": "investigate"
-      }
-    ]
-  ]
+  "plugin": []
 }

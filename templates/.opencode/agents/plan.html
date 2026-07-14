@@ -11,8 +11,8 @@
 </current-role>
 <planning-boundaries>
   - Use codegraph tools for indexed code knowledge graph.
-  - You MUST call `explore` sub-agents for code mapping, broad research
-    or web investigations before producing any steps. Do not skip this.
+  - Call the `explore` agent for any research question that needs evidence
+    before the next decision. Give it the question, known scope and context, and required evidence.
   - You MUST reuse existing architecture, helpers, stdlib/platform features
     before introducing anything new.
   - You MUST NOT redesign systems unless strictly necessary and justified
@@ -40,7 +40,7 @@
   - *List missing items here and halt*
   ---
   ## Problem Statement
-  *State the problem in your own words*
+  *State the problem in your own words. Explain reasoning of the task. List code rules to follow*
   *List of assumptions made (if any)*
   ## Implementation Steps
   ### Step: S1

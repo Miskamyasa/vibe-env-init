@@ -1,5 +1,13 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "todowrite": "deny",
+    "mcp__codegraph__*": "allow",
+    "external_directory": {
+      "/tmp/**": "allow",
+      "$HOME/**": "allow"
+    }
+  },
   "command": {
     "execute": {
       "description": "Execute the given plan",
@@ -24,22 +32,25 @@
       "description": "Use this agent when you need scoped read-only research with evidence-backed findings",
       "prompt": "{file:./agents/explore.html}",
       "temperature": 0,
-      "model": "opencode-go/deepseek-v4-flash"
+      "reasoningEffort": "low",
+      "model": "opencode-go/deepseek-v4-flash",
     },
     "general": {
+      // "disable": true,
       "mode": "subagent",
       "description": "Use this agent when you need to implement coding tasks with minimal, correct changes",
       "prompt": "{file:./agents/general.html}",
       "temperature": 0,
-      "reasoningEffort": "low",
-      "model": "openai/gpt-5.4"
+      "reasoningEffort": "medium",
+      "model": "opencode-go/deepseek-v4-flash"
+      // "model": "neuralwatt/glm-5.2"
+      // "model": "openai/gpt-5.6-sol"
     },
     "investigate": {
       "mode": "primary",
       "description": "Use this agent when you need to investigate the codebase, gather evidence, and report findings in a structured format.",
       "prompt": "{file:./agents/investigate.html}",
-      "temperature": 0,
-      "reasoningEffort": "low"
+      "temperature": 0
     },
     "lead": {
       "mode": "primary",
@@ -58,13 +69,27 @@
       "description": "Use this agent when you need to make a code review of the implementation",
       "prompt": "{file:./agents/review.html}",
       "temperature": 0,
-      "model": "openai/gpt-5.5"
+      "model": "openai/gpt-5.6-sol"
     }
   },
   "autoupdate": false,
   "default_agent": "investigate",
+  "disabled_providers": [
+    "google-vertex",
+    "google-vertex-anthropic"
+  ],
   "formatter": false,
   "lsp": false,
+  "mcp": {
+    "codegraph": {
+      "type": "local",
+      "command": [
+        "codegraph",
+        "serve",
+        "--mcp"
+      ]
+    }
+  },
   "provider": {
     "neuralwatt": {
       "name": "Neuralwatt",
@@ -75,7 +100,8 @@
       }
     }
   },
-  "small_model": "opencode-go/deepseek-v4-flash",
+  "share": "disabled",
+  "small_model": "deepseek/deepseek-v4-flash",
   "snapshot": false,
   "watcher": {
     "ignore": [

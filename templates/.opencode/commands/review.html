@@ -4,10 +4,6 @@
   2. Execution fidelity to the plan (no dropped requirements, no scope creep).
   3. Acceptance criteria coverage and risk hotspots.
 </objective>
-<review-orchestration-rules>
-  - Spawn exactly TWO `review` agents in parallel.
-  - Each agent MUST receive the same inputs and rules.
-</review-orchestration-rules>
 <review-sub-agent-prompt>
   <context>
     Inputs available:
@@ -29,7 +25,7 @@
     - If verdict is **REQUEST_CHANGES** propose possible fixes for the identified issues.
   </plan-fidelity-check>
 </review-sub-agent-prompt>
-<post_review_processing>
+<post-review-processing>
   If the verdict is **REQUEST_CHANGES**, do **not** declare completion.
   Propose new execution steps to fix the identified issues and wait for approval.
   The scope must be strictly limited to addressing the review concerns.
@@ -47,4 +43,4 @@
     Each bullet must be no more than 72 characters.
     Do not include headings.]
     ```
-</post_review_processing>
+</post-review-processing>
