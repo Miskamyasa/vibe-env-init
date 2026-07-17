@@ -4,7 +4,7 @@
   2. Execution fidelity to the plan (no dropped requirements, no scope creep).
   3. Acceptance criteria coverage and risk hotspots.
 </objective>
-<review-sub-agent-prompt>
+<sub-agent-prompt>
   <context>
     Inputs available:
     - Problem Statement: *problem statement from the planning phase*
@@ -24,8 +24,8 @@
     - Detect drift: changes implemented that are not justified by plan scope.
     - If verdict is **REQUEST_CHANGES** propose possible fixes for the identified issues.
   </plan-fidelity-check>
-</review-sub-agent-prompt>
-<post-review-processing>
+</sub-agent-prompt>
+<main-agent-post-processing>
   If the verdict is **REQUEST_CHANGES**, do **not** declare completion.
   Propose new execution steps to fix the identified issues and wait for approval.
   The scope must be strictly limited to addressing the review concerns.
@@ -43,4 +43,4 @@
     Each bullet must be no more than 72 characters.
     Do not include headings.]
     ```
-</post-review-processing>
+</main-agent-post-processing>

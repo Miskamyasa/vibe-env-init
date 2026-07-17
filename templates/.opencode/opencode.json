@@ -36,7 +36,7 @@
       "model": "opencode-go/deepseek-v4-flash",
     },
     "general": {
-      // "disable": true,
+      "disable": true,
       "mode": "subagent",
       "description": "Use this agent when you need to implement coding tasks with minimal, correct changes",
       "prompt": "{file:./agents/general.html}",
@@ -53,6 +53,7 @@
       "temperature": 0
     },
     "lead": {
+      "disable": true,
       "mode": "primary",
       "description": "Use this agent when you need to coordinate implementation work",
       "prompt": "{file:./agents/lead.html}",

@@ -8,7 +8,8 @@
     "MISE_TRUSTED_CONFIG_PATHS": "${localWorkspaceFolder}",
     "NEURALWATT_API_KEY": "${localEnv:NEURALWATT_API_KEY}",
     "OPENCODE_DISABLE_LSP_DOWNLOAD": true,
-    "OPENCODE_DISABLE_CLAUDE_CODE": true
+    "OPENCODE_DISABLE_CLAUDE_CODE": true,
+    "OPENCODE_YOLO": true,
   },
   "initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/containers/local-share-opencode/{{PROJECT_NAME}}/${localWorkspaceFolderBasename}",
   "mounts": [
