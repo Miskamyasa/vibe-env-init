@@ -89,9 +89,9 @@ your-project/
   mise.toml               # Tool versions (node, npm, devcontainer CLI, opencode, gh)
 ```
 
-## Usage Example: Plan, Execute, Review Workflow
+## Usage Example: Execute and Review Workflow
 
-The scaffolded `.opencode/` directory provides a three-phase workflow for implementing features. Each phase uses a dedicated slash command and specialized AI agents.
+The scaffolded `.opencode/` directory provides a two-phase workflow for implementing features. Each phase uses a dedicated slash command and specialized AI agents. Use the `plan` agent first to produce an execution-ready plan, then run `/execute` and `/review`.
 
 ### Step 1: Initialize the devcontainer
 
@@ -108,20 +108,20 @@ devcontainer exec --workspace-folder . opencode
 
 Or use the `oc` wrapper if you set it up (see [Wrapper script](#wrapper-script)).
 
-### Step 2: Plan (`/plan`)
+### Step 2: Plan (manual)
 
-Inside opencode, describe what you want to build:
+Switch to the `plan` agent and describe what you want to build:
 
 ```
-/plan add a homepage benefits section
+add a homepage benefits section
 ```
 
-The `/plan` command triggers **Phase 1**. It uses the `plan` agent to:
+The `plan` agent (read-only) will:
 - Read `AGENTS.md` and any referenced files for project conventions
 - Investigate the codebase for existing patterns and architecture
 - Produce a dependency-ordered list of implementation steps with acceptance criteria
 
-Wait for the plan to complete. Review the output — it will contain numbered steps (S1, S2, ...) with scope, dependencies, and acceptance criteria for each.
+Wait for the plan to complete. Review the output — it will contain numbered steps (S1, S2, ...) with scope, dependencies, and acceptance criteria for each. If required context is missing, the agent reports "Missing Context" and halts instead of guessing.
 
 ### Step 3: Execute (`/execute`)
 
@@ -131,7 +131,7 @@ Once you are satisfied with the plan, run:
 /execute
 ```
 
-The `/execute` command triggers **Phase 2**. It uses the `lead` agent to:
+The `/execute` command uses the `lead` agent to:
 - Walk through each planned step in dependency order
 - Spawn `general` sub-agents for each step with implementation-only prompts
 - Handle failures by inserting remediation steps and retrying
@@ -147,13 +147,13 @@ After execution completes, run:
 /review
 ```
 
-The `/review` command triggers **Phase 3**. It uses the `lead` agent to spawn read-only `review` sub-agents that:
+The `/review` command uses the `lead` agent to spawn read-only `review` sub-agents that:
 - Verifies each planned step was implemented correctly (plan fidelity)
 - Checks for regressions at API boundaries, state transitions, and error paths
 - Validates acceptance criteria coverage
 - Flags maintainability issues in touched areas
 
-If the review finds critical issues, the agent will add fix steps and re-execute automatically. Once the review passes, you get:
+If the review finds critical issues, the agent will propose fix steps and wait for approval. Once the review passes, you get:
 - A structured review report with findings and verdict
 - A **proposed commit message** (title + body with list of changes)
 
@@ -178,22 +178,21 @@ Review the diff before committing — the proposed message is a suggestion, not 
 | Agent | Model | Mode | Purpose |
 |-------|-------|------|---------|
 | `investigate` | default | primary (default) | Read-only codebase investigation, mapping structure, tracing dependencies |
-| `plan` | default | primary | Produces execution-ready implementation plans |
-| `lead` | default | primary | Orchestrates `/execute` and `/review` commands, delegates to sub-agents |
+| `plan` | default | primary | Produces execution-ready implementation plans (read-only) |
 | `build` | default | primary | Direct-use agent for implementing changes end-to-end |
-| `general` | `openai/gpt-5.4` | subagent | Scoped implementation tasks with minimal changes |
+| `lead` | default | primary | Orchestrates `/execute` and `/review` commands, delegates to sub-agents |
+| `general` | `opencode-go/deepseek-v4-flash` | subagent | Scoped implementation tasks with minimal changes |
 | `explore` | `opencode-go/deepseek-v4-flash` | subagent | Fast, broad codebase exploration for investigation |
-| `review` | `openai/gpt-5.5` | subagent | Read-only code review with severity-rated findings |
+| `review` | `openai/gpt-5.6-sol` | subagent | Read-only code review with severity-rated findings |
 
 ### Commands Reference
 
-| Command | Phase | Agent | Description |
-|---------|-------|-------|-------------|
-| `/plan <description>` | 1 | `plan` | Investigate codebase and produce an implementation plan |
-| `/execute` | 2 | `lead` → `general` | Execute the plan step-by-step via implementation sub-agents |
-| `/review` | 3 | `lead` → `review` | Run independent code review and produce commit message |
+| Command | Agent | Description |
+|---------|-------|-------------|
+| `/execute` | `lead` → `general` | Execute the plan step-by-step via implementation sub-agents |
+| `/review` | `lead` → `review` | Run independent code review and produce commit message |
 
-> **Tip:** The `investigate` agent is the default mode. When you open opencode, you can ask questions about the codebase and it will explore in read-only mode without making any changes. Switch to the workflow above when you are ready to implement.
+> **Tip:** The `investigate` agent is the default mode. When you open opencode, you can ask questions about the codebase and it will explore in read-only mode without making any changes. Switch to the `plan` agent when you are ready to design an implementation, then run `/execute` and `/review` to implement and verify it.
 
 ## Conflict Handling
 
