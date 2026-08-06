@@ -1,4 +1,4 @@
-# vibe-env-init
+# opencode-config
 
 Scaffold any project to run [opencode](https://opencode.ai) CLI inside a devcontainer, entirely from the terminal.
 
@@ -9,7 +9,7 @@ One command sets up `.devcontainer/`, `.opencode/`, and `mise.toml`.
 ## Quick Start
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/vibe-env-init/main/init.sh) my-project
+bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/opencode-config/main/init.sh) my-project
 ```
 
 The script will:
@@ -21,7 +21,7 @@ If no project name is given, the current directory name is used. The script norm
 If you need to test from a fork, override the template source:
 
 ```bash
-VIBE_ENV_INIT_REPO="owner/repo" VIBE_ENV_INIT_BRANCH="branch" bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/vibe-env-init/main/init.sh) my-project
+VIBE_ENV_INIT_REPO="owner/repo" VIBE_ENV_INIT_BRANCH="branch" bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/opencode-config/main/init.sh) my-project
 ```
 
 ## Running opencode in a container
@@ -96,7 +96,7 @@ The scaffolded `.opencode/` directory provides a two-phase workflow for implemen
 ### Step 1: Initialize the devcontainer
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/vibe-env-init/main/init.sh) my-project
+bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/opencode-config/main/init.sh) my-project
 ```
 
 Then start the container:
