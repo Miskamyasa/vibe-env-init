@@ -13,6 +13,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/opencode-config/m
 ```
 
 The script will:
+
 1. Create all configuration files with your project name
 2. Skip any files that already exist (showing a diff so you can merge manually)
 
@@ -21,7 +22,7 @@ If no project name is given, the current directory name is used. The script norm
 If you need to test from a fork, override the template source:
 
 ```bash
-VIBE_ENV_INIT_REPO="owner/repo" VIBE_ENV_INIT_BRANCH="branch" bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/opencode-config/main/init.sh) my-project
+INIT_REPO="owner/repo" INIT_BRANCH="branch" bash <(curl -fsSL https://raw.githubusercontent.com/Miskamyasa/opencode-config/main/init.sh) my-project
 ```
 
 ## Running opencode in a container
@@ -117,6 +118,7 @@ add a homepage benefits section
 ```
 
 The `plan` agent (read-only) will:
+
 - Read `AGENTS.md` and any referenced files for project conventions
 - Investigate the codebase for existing patterns and architecture
 - Produce a dependency-ordered list of implementation steps with acceptance criteria
@@ -132,6 +134,7 @@ Once you are satisfied with the plan, run:
 ```
 
 The `/execute` command uses the `lead` agent to:
+
 - Walk through each planned step in dependency order
 - Spawn `general` sub-agents for each step with implementation-only prompts
 - Handle failures by inserting remediation steps and retrying
@@ -148,12 +151,14 @@ After execution completes, run:
 ```
 
 The `/review` command uses the `lead` agent to spawn read-only `review` sub-agents that:
+
 - Verifies each planned step was implemented correctly (plan fidelity)
 - Checks for regressions at API boundaries, state transitions, and error paths
 - Validates acceptance criteria coverage
 - Flags maintainability issues in touched areas
 
 If the review finds critical issues, the agent will propose fix steps and wait for approval. Once the review passes, you get:
+
 - A structured review report with findings and verdict
 - A **proposed commit message** (title + body with list of changes)
 
@@ -175,28 +180,29 @@ Review the diff before committing — the proposed message is a suggestion, not 
 
 ### Agents Reference
 
-| Agent | Model | Mode | Purpose |
-|-------|-------|------|---------|
-| `investigate` | default | primary (default) | Read-only codebase investigation, mapping structure, tracing dependencies |
-| `plan` | default | primary | Produces execution-ready implementation plans (read-only) |
-| `build` | default | primary | Direct-use agent for implementing changes end-to-end |
-| `lead` | default | primary | Orchestrates `/execute` and `/review` commands, delegates to sub-agents |
-| `general` | `opencode-go/deepseek-v4-flash` | subagent | Scoped implementation tasks with minimal changes |
-| `explore` | `opencode-go/deepseek-v4-flash` | subagent | Fast, broad codebase exploration for investigation |
-| `review` | `openai/gpt-5.6-sol` | subagent | Read-only code review with severity-rated findings |
+| Agent         | Model                           | Mode              | Purpose                                                                   |
+| ------------- | ------------------------------- | ----------------- | ------------------------------------------------------------------------- |
+| `investigate` | default                         | primary (default) | Read-only codebase investigation, mapping structure, tracing dependencies |
+| `plan`        | default                         | primary           | Produces execution-ready implementation plans (read-only)                 |
+| `build`       | default                         | primary           | Direct-use agent for implementing changes end-to-end                      |
+| `lead`        | default                         | primary           | Orchestrates `/execute` and `/review` commands, delegates to sub-agents   |
+| `general`     | `opencode-go/deepseek-v4-flash` | subagent          | Scoped implementation tasks with minimal changes                          |
+| `explore`     | `opencode-go/deepseek-v4-flash` | subagent          | Fast, broad codebase exploration for investigation                        |
+| `review`      | `openai/gpt-5.6-sol`            | subagent          | Read-only code review with severity-rated findings                        |
 
 ### Commands Reference
 
-| Command | Agent | Description |
-|---------|-------|-------------|
+| Command    | Agent              | Description                                                 |
+| ---------- | ------------------ | ----------------------------------------------------------- |
 | `/execute` | `lead` → `general` | Execute the plan step-by-step via implementation sub-agents |
-| `/review` | `lead` → `review` | Run independent code review and produce commit message |
+| `/review`  | `lead` → `review`  | Run independent code review and produce commit message      |
 
 > **Tip:** The `investigate` agent is the default mode. When you open opencode, you can ask questions about the codebase and it will explore in read-only mode without making any changes. Switch to the `plan` agent when you are ready to design an implementation, then run `/execute` and `/review` to implement and verify it.
 
 ## Conflict Handling
 
 If a file already exists, the script will:
+
 - Skip the file (never overwrites)
 - Show a unified diff between your file and the template
 - Print the template URL so you can review and merge changes manually

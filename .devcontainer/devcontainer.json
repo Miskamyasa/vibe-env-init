@@ -9,18 +9,18 @@
     "OPENCODE_YOLO": true,
     "NEURALWATT_API_KEY": "${localEnv:NEURALWATT_API_KEY}"
   },
-  "initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/containers/local-share-opencode/vibe-env-init",
+  "initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/containers/local-share-opencode/opencode-config",
   "mounts": [
     // Cache mounts
     "source=${localEnv:HOME}/.cache/containers/cache,target=/home/ubuntu/.cache,type=bind",
     "source=${localEnv:HOME}/.cache/containers/local-share,target=/home/ubuntu/.local/share,type=bind",
     // Opencode mounts
-    "source=${localEnv:HOME}/.cache/containers/local-share-opencode/vibe-env-init,target=/home/ubuntu/.local/share/opencode,type=bind",
+    "source=${localEnv:HOME}/.cache/containers/local-share-opencode/opencode-config,target=/home/ubuntu/.local/share/opencode,type=bind",
     "source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/ubuntu/.local/share/opencode/auth.json,type=bind",
     "source=${localEnv:HOME}/.config/opencode,target=/home/ubuntu/.config/opencode,type=bind,readonly",
   ],
   "runArgs": [
-    "--name=vibe-env-init"
+    "--name=opencode-config"
   ],
   "postCreateCommand": "mise self-update -y && mise install"
 }

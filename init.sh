@@ -2,8 +2,8 @@
 # shellcheck disable=SC2059
 set -euo pipefail
 
-REPO="${VIBE_ENV_INIT_REPO:-Miskamyasa/vibe-env-init}"
-BRANCH="${VIBE_ENV_INIT_BRANCH:-main}"
+REPO="${INIT_REPO:-Miskamyasa/opencode-config}"
+BRANCH="${INIT_BRANCH:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/templates"
 ARCHIVE_URL="https://github.com/${REPO}/archive/${BRANCH}.tar.gz"
 
@@ -25,7 +25,7 @@ cleanup() {
 trap cleanup EXIT
 
 # -- Arguments --------------------------------------------------------
-RAW_PROJECT_NAME="${1:-$(basename "$PWD")}" 
+RAW_PROJECT_NAME="${1:-$(basename "$PWD")}"
 
 sanitize_project_name() {
   local input="$1"
@@ -94,7 +94,7 @@ create_tmpdir() {
     printf '%s' "$tmp"
     return
   fi
-  mktemp -d -t vibe-env-init
+  mktemp -d -t opencode-config
 }
 
 supports_diff_color() {
@@ -177,7 +177,7 @@ copy_templates() {
 
 echo ""
 printf "${B}+-----------------------------------------+${NC}\n"
-printf "${B}|${NC}      vibe-env-init project scaffolder     ${B}|${NC}\n"
+printf "${B}|${NC}      opencode-config project scaffolder     ${B}|${NC}\n"
 printf "${B}+-----------------------------------------+${NC}\n"
 echo ""
 info "Project name: ${PROJECT_NAME}"
